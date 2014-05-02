@@ -22,6 +22,11 @@
 #
 ##########################################################################
 
+# Ensure we can find our Perl modules
+BEGIN {
+	unshift @INC, "/opt/neet/core";
+}
+
 use strict;
 use JR::iShell::iShellSQL;
 use JR::Files::Config;

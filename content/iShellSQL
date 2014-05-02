@@ -22,10 +22,29 @@
 #
 ##########################################################################
 
+# Ensure we can find our Perl modules
+BEGIN {
+	unshift @INC, "/opt/neet/core";
+}
+
 use strict;
 use JR::iShell::iShellSQL;
 
 usage() if (!$ARGV[0]);
+
+my $enable=0;
+# Horrible way to do it, but this is a quick hack
+my @tmpargv;
+for my $arg (@ARGV){
+	if (("$arg" eq "-e") || ("$arg" eq "--enable")){
+		$enable=1;
+	} elsif (("$arg" eq "-d") || ("$arg" eq "--disable")){
+		$enable=2;
+	} else {
+		push @tmpargv, $arg;
+	}
+}
+@ARGV=@tmpargv; $#tmpargv=-1;
 
 my $Connector="NativeMSSQL";
 my $host=shift();
@@ -42,10 +61,11 @@ $user="" if (!$user);
 $password="" if (!$password);
 
 if ("$user"){
-	$shell = JR::iShell::iShellSQL->new('Connector'=>"$Connector", 'Host'=>"$host", 'Port'=>"$port", 'Pass'=>"$password", 'User'=>"$user");
+	$shell = JR::iShell::iShellSQL->new('Connector'=>"$Connector", 'Host'=>"$host", 'Port'=>"$port", 'Pass'=>"$password", 'User'=>"$user","EnableXpcmdshell"=>"$enable");
 } else {
-	$shell = JR::iShell::iShellSQL->new('Connector'=>"$Connector", 'Host'=>"$host", 'Port'=>"$port", 'Pass'=>"$password");
+	$shell = JR::iShell::iShellSQL->new('Connector'=>"$Connector", 'Host'=>"$host", 'Port'=>"$port", 'Pass'=>"$password","EnableXpcmdshell"=>"$enable");
 }
+
 if ($shell){
 	print "Got shell\n";
 	print "OS: ". $shell->OS . "\n";
@@ -61,15 +81,16 @@ if ($shell){
 		}
 		exit if (!$shell->prompt);
 	}
-
 } else {
+
 	print "No shell\n";
 }
 
-
 sub usage {
-	print "Usage: iShellSQL <HOST IP> <Password> [username]\n";
+	print "Usage: iShellSQL [-e|--enable] [-d|--disable] <HOST IP> <Password> [username]\n";
 	print "       iShellSQL gives a clean shell over a\n";
 	print "       native MSSQL connection\n";
+	print "       The --enable option attempts to enable xp_cmdshell if it has been disabled.\n";
+	print "       The --disable option attempts to disable xp_cmdshell, assuming you enabled it.\n";
 	exit 0;
 }
