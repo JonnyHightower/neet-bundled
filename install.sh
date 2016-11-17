@@ -20,15 +20,18 @@ if [ ! -z $INVOKEDBYNEETUPDATE ] && [ $INVOKEDBYNEETUPDATE -eq 1 ]; then
 	echo "   + Installing neet bundled package updates..."
 	#######################################################
 
-	for bin in iShellSQL ms08-067_check.py ndr.py ndr.pyc patator.py sadmindcmd.pl SQLaddaccount wkhtmltoimage wkhtmltoimage-amd64; do
+	for bin in iShellSQL ms08-067_check.py ndr.py ndr.pyc sadmindcmd.pl SQLaddaccount wkhtmltoimage wkhtmltoimage-amd64; do
 		cp content/$bin "${NEET}/pkg/bin/$bin"
-		echo "$bin=${NEET}/pkg/bin/$bin" >> "${CONFDIR}/locations"
+		#echo "$bin=${NEET}/pkg/bin/$bin" >> "${CONFDIR}/locations"
+		newLocation "$bin" "${NEET}/pkg/bin/$bin"
 		chmod 755 "${NEET}/pkg/bin/$bin"
 	done
 
 	echo -n "   + "
 	# Nikto
 	PkgInstall nikto Nikto
+	# TestSSL
+	PkgInstall testssl TestSSL
 
 	#######################################################
 	newVersion neet-bundled $VERSION
